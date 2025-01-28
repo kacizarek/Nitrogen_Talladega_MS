@@ -10,4 +10,4 @@ The _02_Rscripts_ folder contains the analyses done and code for figures made.
 
 **Citation**
 
-Zarek, K., Jones, C. N., Peterson, D. M., Plont, S., Shogren, A. J., Tatariw, C., Speir, S. L., Mortazavi, B., & Burgin, A. J. Investigating spatial and temporal nitrogen dynamics in a forested headwater stream over the course of an annual drying event. Planned Submission: Fall 2024. 
+>Zarek, K., Jones, C. N., Peterson, D. M., Plont, S., Shogren, A. J., Tatariw, C., Speir, S. L., Mortazavi, B., & Burgin, A. J. Investigating spatial and temporal nitrogen dynamics in a forested headwater stream over the course of an annual drying event. Planned Submission: Fall 2024. 
