@@ -175,20 +175,16 @@ ggsave("FigureS3_timeseries.png", fig, width = 6,
 #---Full record of study hydrograph from Mar 22 to Nov 23---
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #Create hydrograph w/ full Q record of study  
-q <- read_csv("01_tidydata/TLM01_hydrograph_20240412_SJP.csv")
+q <- read_csv("01_tidydata/ds03.csv")
 
-#Make datetime column and ensure central timezone
-q <- q %>% mutate(datetime = mdy_hm(datetime_local))
-q1 <- q %>% force_tz(datetime_local, tzone = "America/Chicago")
-#Make it in UTC
-q2 <- q1 %>% with_tz(datetime, tzone = "UTC")
-
-q3 <- q2 %>% 
+#Filter for specific time frame
+q2 <- q %>% 
   filter(Q_Ls >= 0.1) %>% 
-  filter(datetime >= "2022-03-20 00:00:00" & datetime <= "2023-11-27 18:45:00")
+  filter(datetime_UTC >= "2022-03-20 00:00:00" & datetime_UTC <= "2023-11-27 18:45:00")
 
-p1 <- ggplot(q3, aes(x = as.Date(datetime), y = Q_Ls)) +
-  geom_line(aes(group = as.Date(datetime)), lwd = 1,color = "#3182bd") +
+#Plot full record of Q data 
+p1 <- ggplot(q2, aes(x = as.Date(datetime_UTC), y = Q_Ls)) +
+  geom_line(aes(group = as.Date(datetime_UTC)), lwd = 1,color = "#3182bd") +
   scale_y_continuous(trans = "log10", labels = scales::comma) +
   labs(y = expression("Q (L s"^-1*")"), 
        x= "Date") +
@@ -216,12 +212,12 @@ p1 <- p1 + geom_vline(xintercept = as.numeric(as.Date(c("2022-03-29", "2022-08-1
 print(p1)
 
 #Create hydrograph w/ full Q record of study  
-asdn <- read_csv("01_tidydata/ASDNpermanent_Mar22_Dec23.csv")
+asdn <- read_csv("01_tidydata/ds03.csv")
 ASDN <- asdn %>% 
-  filter(datetime >= "2022-03-20 00:00:00" & datetime <= "2023-11-27 18:45:00")
+  filter(datetime_UTC >= "2022-03-20 00:00:00" & datetime_UTC <= "2023-11-27 18:45:00")
 
-p2 <- ggplot(ASDN, aes(x = as.Date(datetime), y = asdn_perm)) +
-  geom_line(aes(x = as.Date(datetime), y = asdn_perm),  
+p2 <- ggplot(ASDN, aes(x = as.Date(datetime_UTC), y = asdn_perm)) +
+  geom_line(aes(x = as.Date(datetime_UTC), y = asdn_perm),  
             color = "black",
             linewidth = 1) +
   scale_y_continuous(trans = "log10", labels = scales::comma) +
@@ -237,7 +233,11 @@ p2 <- ggplot(ASDN, aes(x = as.Date(datetime), y = asdn_perm)) +
         axis.title.x = element_blank(),
         axis.text = element_text(color = "black", size = 14)) +
   #display each month
-  scale_x_date(expand = c(0.01,0.01), breaks = "4 months", date_labels = "%b %y") 
+  scale_x_date(expand = c(0.01,0.01), breaks = as.Date(c("2022-03-20", "2022-07-01",
+                                                         "2022-11-01", 
+                                                         "2023-03-01", 
+                                                         "2023-07-01",
+                                                         "2023-11-01")), date_labels = "%b %y") 
 
 #Add sampling campaigns onto the hydrograph
 p2 <- p2 + geom_vline(xintercept = as.numeric(as.Date(c("2022-03-29", "2022-08-11",
@@ -256,10 +256,3 @@ fig <- (p1 / p2)
 ggsave("hydrograph_asdn_fullrecord.png", fig, width = 8, 
        height = 5, units = "in",
        path = "03_plots", dpi = 300)
-
-#join full record of ASDN length & Q together 
-q3 <- q3 %>% select(-"...1")
-q_asdn <- full_join(q3, ASDN, by = join_by(datetime), relationship = "many-to-many")
-
-#--Save csv----
-write_csv(q_asdn, "01_tidydata/ds03.csv")
